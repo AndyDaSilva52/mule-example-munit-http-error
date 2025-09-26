@@ -20,7 +20,7 @@
     doc:name="HTTP Request configuration"
     basePath="/api" />
 
-  <sub-flow name="implementation-sub-flow">
+  <sub-flow name="implementation-for-option-a.subflow">
     <logger
       level="INFO"
       doc:name="INFO BEFORE"
@@ -34,7 +34,8 @@
         method="GET"
         doc:name="HTTP Req External GET /health"
         config-ref="HTTP_Request_configuration_External"
-        path="/health" />
+        path="/health"
+        sendBodyMode="ALWAYS" />
       <error-handler>
         <on-error-continue
           enableNotifications="true"
@@ -57,7 +58,8 @@
         method="GET"
         doc:name="HTTP Req System GET /health validResponseCode=200..204"
         config-ref="HTTP_Request_configuration_System"
-        path="/health">
+        path="/health"
+        sendBodyMode="ALWAYS">
         <http:response-validator>
           <http:success-status-code-validator
             values="200..204" />
@@ -84,7 +86,8 @@
       method="GET"
       doc:name="HTTP Req Process GET /health"
       path="/health"
-      config-ref="HTTP_Request_configuration_Process">
+      config-ref="HTTP_Request_configuration_Process"
+      sendBodyMode="ALWAYS">
     </http:request>
   </sub-flow>
 

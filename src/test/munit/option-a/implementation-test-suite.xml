@@ -16,20 +16,15 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
-  <munit:config name="implementation-test-suite.xml" />
+  <munit:config name="implementation-option-a-test-suite.xml" />
 
-  <http:request-config
-    name="MUnit_HTTP_Request_configuration-for-implementation-test-suite">
-    <http:request-connection
-      host="localhost"
-      port="8081" />
-  </http:request-config>
-<!-- 
+
   <import
     doc:name="Import"
-    file="option_1\munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml"
+    file="option-a\munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml"
     doc:description="munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml" />
- -->
+
+
   <munit:before-suite name="implementation-test-suiteBefore_Suite">
     <!-- [STUDIO:"IMPORTANT: Global Elements has configuration for the HTTP Request config used in this MUnit Test Suite and also has the Import for the Listener defined in another MUnit Test Suite"]<logger level="TRACE" doc:name="IMPORTANT: Global Elements has configuration for the HTTP Request config used in this MUnit Test Suite and also has the Import for the Listener defined in another MUnit Test Suite" /> [STUDIO] -->
     <logger
@@ -37,6 +32,8 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
       doc:name="INFO Before Suite"
       message="Before Suite" />
   </munit:before-suite>
+  <!-- -->
+  <!-- -->
   <!-- -->
   <munit:test
     name="implementation-test-suite-implementation-sub-flowTest"
@@ -46,6 +43,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         value="munit-util-mock-http-request-for-errorMessage-using-listener.flow" />
     </munit:enable-flow-sources>
     <munit:behavior>
+      <!-- -->
       <munit-tools:mock-when
         doc:name="Mock HTTP Req External GET /health -&gt; then call flow 400 ;"
         processor="http:request">
@@ -63,8 +61,9 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         <munit-tools:then-call
           flow="implementation-test-suite.mock-http-req-external-400.flow" />
       </munit-tools:mock-when>
+      <!-- -->
       <munit-tools:mock-when
-        doc:name="Mock HTTP Req System GET /health -&gt; then call flow 208 ;"
+        doc:name="Mock HTTP Req System GET /health -&gt; then call flow 503 ;"
         processor="http:request">
         <munit-tools:with-attributes>
           <munit-tools:with-attribute
@@ -80,6 +79,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         <munit-tools:then-call
           flow="implementation-test-suite.mock-http-req-system-503.flow" />
       </munit-tools:mock-when>
+      <!-- -->
       <munit-tools:spy
         doc:name="Spy HTTP Req System GET /health"
         processor="http:request">
@@ -95,8 +95,9 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             attributeName="path" />
         </munit-tools:with-attributes>
       </munit-tools:spy>
+      <!-- -->
       <munit-tools:mock-when
-        doc:name="Mock HTTP Req Process GET /health -&gt; then call flow"
+        doc:name="Mock HTTP Req Process GET /health -&gt; then call flow (default 200) ;"
         doc:id="f9eebac1-f8b3-406b-84d8-267302f3696c"
         processor="http:request">
         <munit-tools:with-attributes>
@@ -111,18 +112,20 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             attributeName="config-ref" />
         </munit-tools:with-attributes>
         <munit-tools:then-call
-          flow="implementation-test-suite.http-req-mock-based-on-vars-http.flow" />
+          flow="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow" />
       </munit-tools:mock-when>
     </munit:behavior>
+    <!-- -->
     <munit:execution>
       <flow-ref
-        doc:name="Flow-ref to implementation-sub-flow"
-        name="implementation-sub-flow" />
+        doc:name="Flow-ref to implementation-for-option-a.subflow"
+        name="implementation-for-option-a.subflow"
+        doc:id="d0a46ca0-c29e-4e2e-b3e3-d8483677b8a8" />
     </munit:execution>
+    <!-- -->
     <munit:validation>
       <munit-tools:verify-call
         doc:name="ERROR EXCEPTION External"
-        doc:id="9d48295a-0ec9-40b7-a885-d1fb5cee75ad"
         processor="logger"
         atLeast="1">
         <munit-tools:with-attributes>
@@ -131,9 +134,9 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             attributeName="doc:id" />
         </munit-tools:with-attributes>
       </munit-tools:verify-call>
+      <!-- -->
       <munit-tools:verify-call
         doc:name="ERROR EXCEPTION System"
-        doc:id="f592c7c3-662a-47a2-b6d0-5f6f089cc550"
         processor="logger"
         atLeast="1">
         <munit-tools:with-attributes>
@@ -142,18 +145,19 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             attributeName="doc:id" />
         </munit-tools:with-attributes>
       </munit-tools:verify-call>
+      <!-- -->
       <munit-tools:verify-call
         doc:name="3x HTTP Req MUnit Listener"
-        doc:id="e8267eff-a959-4c7c-aa44-e75a63e6004b"
         processor="http:request"
         times="3">
         <munit-tools:with-attributes>
           <munit-tools:with-attribute
-            whereValue="MUnit_HTTP_Request_configuration-for-implementation-test-suite"
+            whereValue="MUnit_HTTP_Request_configuration"
             attributeName="config-ref" />
         </munit-tools:with-attributes>
       </munit-tools:verify-call>
-    </munit:validation>
+    
+</munit:validation>
   </munit:test>
 
 
@@ -170,7 +174,7 @@ output application/json indent=false
 }]]></ee:set-payload>
       </ee:message>
       <ee:variables>
-        <ee:set-variable variableName="http"><![CDATA[%dw 2.0
+        <ee:set-variable variableName="munitHttpMock"><![CDATA[%dw 2.0
 output application/java
 ---
 {
@@ -180,9 +184,10 @@ output application/java
 }]]></ee:set-variable>
       </ee:variables>
     </ee:transform>
+    <!-- -->
     <flow-ref
-      doc:name="FlowRef implementation-test-suite.http-req-mock-based-on-vars-http"
-      name="implementation-test-suite.http-req-mock-based-on-vars-http.flow" />
+      doc:name="FlowRef implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock"
+      name="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow" />
   </flow>
 
 
@@ -199,7 +204,7 @@ output application/json indent=false
 }]]></ee:set-payload>
       </ee:message>
       <ee:variables>
-        <ee:set-variable variableName="http"><![CDATA[%dw 2.0
+        <ee:set-variable variableName="munitHttpMock"><![CDATA[%dw 2.0
 output application/java
 ---
 {
@@ -209,9 +214,10 @@ output application/java
 }]]></ee:set-variable>
       </ee:variables>
     </ee:transform>
+    <!-- -->
     <flow-ref
-      doc:name="FlowRef implementation-test-suite.http-req-mock-based-on-vars-http"
-      name="implementation-test-suite.http-req-mock-based-on-vars-http.flow" />
+      doc:name="FlowRef implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock"
+      name="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow" />
   </flow>
 
 

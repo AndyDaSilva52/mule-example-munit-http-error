@@ -19,14 +19,25 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
   <munit:config
     name="munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml" />
 
+  <munit:dynamic-port
+    propertyName="munit.dynamic.port"
+    min="6000"
+    max="7000" />
 
   <http:listener-config
     name="MUnit_HTTP_Listener_config"
     doc:name="HTTP Listener config">
     <http:listener-connection
       host="0.0.0.0"
-      port="8081" />
+      port="${munit.dynamic.port}" />
   </http:listener-config>
+
+
+  <http:request-config name="MUnit_HTTP_Request_configuration">
+    <http:request-connection
+      host="localhost"
+      port="${munit.dynamic.port}" />
+  </http:request-config>
 
 
   <flow name="munit-util-mock-http-request-for-errorMessage-using-listener.flow">
@@ -46,37 +57,40 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
         <http:headers><![CDATA[#[attributes.headers]]]></http:headers>
       </http:error-response>
     </http:listener>
+
     <logger
       level="TRACE"
       doc:name="doc: Listener Response will Return the payload/http status for the respective request that was made to mock" />
   </flow>
 
 
-  <flow name="implementation-test-suite.http-req-mock-based-on-vars-http.flow">
+  <flow name="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow">
     <try doc:name="Try">
       <http:request
         method="GET"
         doc:name="HTTP Req MUnit Listener"
-        config-ref="MUnit_HTTP_Request_configuration-for-implementation-test-suite"
+        config-ref="MUnit_HTTP_Request_configuration"
         path="/"
         sendBodyMode="ALWAYS">
-        <http:headers><![CDATA[#[vars.http.headers default {}]]]></http:headers>
-        <http:query-params><![CDATA[#[vars.http.queryParams default {}]]]></http:query-params>
+        <http:headers><![CDATA[#[vars.munitHttpMock.headers default {}]]]></http:headers>
+        <http:query-params><![CDATA[#[vars.munitHttpMock.queryParams default {}]]]></http:query-params>
       </http:request>
+
       <error-handler>
         <on-error-propagate
           enableNotifications="true"
           logException="true"
           doc:name="On Error Propagate">
           <remove-variable
-            doc:name="http"
-            variableName="http" />
+            doc:name="munitHttpMock"
+            variableName="munitHttpMock" />
         </on-error-propagate>
       </error-handler>
     </try>
+
     <remove-variable
-      doc:name="http"
-      variableName="http" />
+      doc:name="munitHttpMock"
+      variableName="munitHttpMock" />
   </flow>
 
 
