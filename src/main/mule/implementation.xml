@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+  xmlns:http="http://www.mulesoft.org/schema/mule/http"
+  xmlns="http://www.mulesoft.org/schema/mule/core"
+  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+
+  <sub-flow name="implementation-sub-flow">
+    <logger
+      level="INFO"
+      doc:name="INFO BEFORE"
+      message="#[output application/json --- 
+{
+	tracepoint: 'BEFORE',
+	message   : message
+}]" />
+    <try doc:name="Try">
+      <http:request
+        method="GET"
+        doc:name="HTTP Req External GET /health"
+        config-ref="HTTP_Request_configuration_External"
+        path="/health" />
+      <error-handler>
+        <on-error-continue
+          enableNotifications="true"
+          logException="true"
+          doc:name="On Error Continue"
+          when="#[ ( error.errorMessage.attributes.statusCode == 400 ) and ( error.errorMessage.payload.message contains 'Account already exists!' ) ]">
+          <logger
+            level="ERROR"
+            message="#[output application/json --- 
+{
+	tracepoint: 'EXCEPTION',
+}]"
+            doc:name="ERROR EXCEPTION"
+            doc:id="sgdinr" />
+        </on-error-continue>
+      </error-handler>
+    </try>
+    <try doc:name="Try">
+      <http:request
+        method="GET"
+        doc:name="HTTP Req System GET /health validResponseCode=200..204"
+        config-ref="HTTP_Request_configuration_System"
+        path="/health">
+        <http:response-validator>
+          <http:success-status-code-validator
+            values="200..204" />
+        </http:response-validator>
+      </http:request>
+      <error-handler>
+        <on-error-continue
+          enableNotifications="true"
+          logException="true"
+          doc:name="On Error Continue"
+          when="#[ (error.errorMessage.attributes.statusCode == 503) ]">
+          <logger
+            doc:name="ERROR EXCEPTION"
+            doc:id="woqqvb"
+            message="#[output application/json ---
+{
+	tracepoint: 'EXCEPTION',
+}]"
+            level="INFO" />
+        </on-error-continue>
+      </error-handler>
+    </try>
+    <http:request
+      method="GET"
+      doc:name="HTTP Req Process GET /health"
+      path="/health"
+      config-ref="HTTP_Request_configuration_Process">
+    </http:request>
+  </sub-flow>
+
+
+</mule>

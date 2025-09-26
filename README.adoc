@@ -1,0 +1,11 @@
+:toc:
+:toc-placement:
+:sectnums: |,all|
+toc:[]
+
+= How to test HTTP error in Mule 4 with Munit 2
+
+This example shows how to test HTTP error in Mule 4 with Munit 2.
+
+Original source code: link:https://help.salesforce.com/s/articleView?id=001117133&type=1[How to test HTTP error in Mule 4 with Munit 2]
+
