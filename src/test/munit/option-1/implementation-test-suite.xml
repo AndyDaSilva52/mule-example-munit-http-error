@@ -19,18 +19,17 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
   <munit:config name="implementation-test-suite.xml" />
 
   <http:request-config
-    name="MUnit_HTTP_Request_configuration-for-implementation-test-suite"
-    doc:name="HTTP Request configuration">
+    name="MUnit_HTTP_Request_configuration-for-implementation-test-suite">
     <http:request-connection
       host="localhost"
       port="8081" />
   </http:request-config>
-
+<!-- 
   <import
     doc:name="Import"
-    file="munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml"
+    file="option_1\munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml"
     doc:description="munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml" />
-
+ -->
   <munit:before-suite name="implementation-test-suiteBefore_Suite">
     <!-- [STUDIO:"IMPORTANT: Global Elements has configuration for the HTTP Request config used in this MUnit Test Suite and also has the Import for the Listener defined in another MUnit Test Suite"]<logger level="TRACE" doc:name="IMPORTANT: Global Elements has configuration for the HTTP Request config used in this MUnit Test Suite and also has the Import for the Listener defined in another MUnit Test Suite" /> [STUDIO] -->
     <logger

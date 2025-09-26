@@ -20,7 +20,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
     name="munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml" />
 
 
-
   <http:listener-config
     name="MUnit_HTTP_Listener_config"
     doc:name="HTTP Listener config">
@@ -28,7 +27,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
       host="0.0.0.0"
       port="8081" />
   </http:listener-config>
-
 
 
   <flow name="munit-util-mock-http-request-for-errorMessage-using-listener.flow">
@@ -52,7 +50,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
       level="TRACE"
       doc:name="doc: Listener Response will Return the payload/http status for the respective request that was made to mock" />
   </flow>
-
 
 
   <flow name="implementation-test-suite.http-req-mock-based-on-vars-http.flow">
@@ -81,7 +78,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
       doc:name="http"
       variableName="http" />
   </flow>
-
 
 
 </mule>
