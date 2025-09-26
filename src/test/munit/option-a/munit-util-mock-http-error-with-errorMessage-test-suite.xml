@@ -40,7 +40,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
   </http:request-config>
 
 
-  <flow name="munit-util-mock-http-request-for-errorMessage-using-listener.flow">
+  <flow name="munit-util-mock-http-error-with-errorMessage-test-suite.listener-flow">
     <http:listener
       doc:name="Listener"
       config-ref="MUnit_HTTP_Listener_config"
@@ -64,7 +64,8 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
   </flow>
 
 
-  <flow name="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow">
+  <flow
+    name="munit-util-mock-http-error-with-errorMessage-test-suite.req-based-on-vars.munitHttpMock-flow">
     <try doc:name="Try">
       <http:request
         method="GET"

@@ -19,11 +19,6 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
   <munit:config name="implementation-option-a-test-suite.xml" />
 
 
-  <import
-    doc:name="Import"
-    file="option-a\munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml"
-    doc:description="munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml" />
-
 
   <munit:before-suite name="implementation-test-suiteBefore_Suite">
     <!-- [STUDIO:"IMPORTANT: Global Elements has configuration for the HTTP Request config used in this MUnit Test Suite and also has the Import for the Listener defined in another MUnit Test Suite"]<logger level="TRACE" doc:name="IMPORTANT: Global Elements has configuration for the HTTP Request config used in this MUnit Test Suite and also has the Import for the Listener defined in another MUnit Test Suite" /> [STUDIO] -->
@@ -40,7 +35,9 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
     timeOut="900000">
     <munit:enable-flow-sources>
       <munit:enable-flow-source
-        value="munit-util-mock-http-request-for-errorMessage-using-listener.flow" />
+        value="munit-util-mock-http-error-with-errorMessage-test-suite.listener-flow" />
+      <munit:enable-flow-source
+        value="munit-util-mock-http-error-with-errorMessage-test-suite.req-based-on-vars.munitHttpMock-flow" />
     </munit:enable-flow-sources>
     <munit:behavior>
       <!-- -->
@@ -112,7 +109,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             attributeName="config-ref" />
         </munit-tools:with-attributes>
         <munit-tools:then-call
-          flow="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow" />
+          flow="munit-util-mock-http-error-with-errorMessage-test-suite.req-based-on-vars.munitHttpMock-flow" />
       </munit-tools:mock-when>
     </munit:behavior>
     <!-- -->
@@ -156,8 +153,8 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             attributeName="config-ref" />
         </munit-tools:with-attributes>
       </munit-tools:verify-call>
-    
-</munit:validation>
+
+    </munit:validation>
   </munit:test>
 
 
@@ -187,7 +184,7 @@ output application/java
     <!-- -->
     <flow-ref
       doc:name="FlowRef implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock"
-      name="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow" />
+      name="munit-util-mock-http-error-with-errorMessage-test-suite.req-based-on-vars.munitHttpMock-flow" />
   </flow>
 
 
@@ -217,7 +214,7 @@ output application/java
     <!-- -->
     <flow-ref
       doc:name="FlowRef implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock"
-      name="implementation-test-suite.http-req-mock-based-on-vars.munitHttpMock.flow" />
+      name="munit-util-mock-http-error-with-errorMessage-test-suite.req-based-on-vars.munitHttpMock-flow" />
   </flow>
 
 
