@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <mule
-  xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
   xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-  xmlns:http="http://www.mulesoft.org/schema/mule/http"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
   xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
@@ -95,7 +93,6 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
       <!-- -->
       <munit-tools:mock-when
         doc:name="Mock HTTP Req Process GET /health -&gt; then call flow (default 200) ;"
-        doc:id="f9eebac1-f8b3-406b-84d8-267302f3696c"
         processor="http:request">
         <munit-tools:with-attributes>
           <munit-tools:with-attribute
@@ -116,8 +113,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
     <munit:execution>
       <flow-ref
         doc:name="Flow-ref to implementation-for-option-a.subflow"
-        name="implementation-for-option-a.subflow"
-        doc:id="d0a46ca0-c29e-4e2e-b3e3-d8483677b8a8" />
+        name="implementation-for-option-a.subflow" />
     </munit:execution>
     <!-- -->
     <munit:validation>
