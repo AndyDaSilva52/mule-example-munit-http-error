@@ -14,11 +14,11 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
-  <munit:config name="implementation-option-c-test-suite.xml" />
+  <munit:config name="impl-option-c-test-suite.xml" />
 
 
   <munit:test
-    name="implementation-option-c-test-suite-without-error-with-attributes-payload"
+    name="impl-option-c-test-suite-without-error-with-attributes-payload"
     description="Test"
     expectedErrorType="HTTP:NOT_FOUND">
     <munit:behavior>

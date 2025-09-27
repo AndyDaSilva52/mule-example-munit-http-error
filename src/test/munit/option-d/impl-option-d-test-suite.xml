@@ -10,7 +10,7 @@
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
-  <munit:config name="implementation-option-d-test-suite.xml" />
+  <munit:config name="impl-option-d-test-suite.xml" />
 
 
   <munit:test
@@ -42,11 +42,17 @@
         name="test2Flow" />
     </munit:execution>
     <munit:validation>
-      <munit-tools:assert-that
-        doc:name="Assert that"
-        message="#[&quot;error.errorType.identifier [$(error.errorType.identifier default '')] is not equal to INTERNAL_SERVER_ERROR&quot;]"
-        expression="#[error.errorType.identifier]"
-        is='#[MunitTools::equalTo("INTERNAL_SERVER_ERROR")]' />
+      <munit-tools:verify-call
+        doc:name="Some logic for CODE_A"
+        doc:id="c6f7ec31-39dc-4e5b-a4fe-5aeaa51935f3"
+        processor="logger"
+        atLeast="#[0]">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute
+            whereValue="Some logic for CODE_A"
+            attributeName="message" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
     </munit:validation>
   </munit:test>
   <!-- -->
@@ -96,11 +102,16 @@
         name="test2Flow" />
     </munit:execution>
     <munit:validation>
-      <munit-tools:assert-that
-        doc:name="Assert that"
-        message="#[&quot;error.errorType.identifier [$(error.errorType.identifier default '')] is not equal to INTERNAL_SERVER_ERROR&quot;]"
-        expression="#[error.errorType.identifier]"
-        is='#[MunitTools::equalTo("INTERNAL_SERVER_ERROR")]' />
+      <munit-tools:verify-call
+        doc:name="Some logic for CODE_B"
+        doc:id="f5099a83-7189-40d1-abb0-d5f6e228d720"
+        processor="logger">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute
+            whereValue="Some logic for CODE_B"
+            attributeName="message" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
     </munit:validation>
   </munit:test>
   <!-- -->

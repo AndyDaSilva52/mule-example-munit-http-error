@@ -14,10 +14,9 @@
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/tracing http://www.mulesoft.org/schema/mule/tracing/current/mule-tracing.xsd">
-  <munit:config
-    name="implementation-option-d-dynamic-for-reuse-test-suite.xml" />
+  <munit:config name="impl-option-d-dynamic-for-reuse-test-suite.xml" />
 
-  <flow name="implementation-option-d-main-for-dynamic-reuse-test-suiteFlow">
+  <flow name="impl-option-d-main-for-dynamic-reuse-test-suiteFlow">
     <logger
       level="INFO"
       doc:name="doc: This is the main flow that can be reused with a variable defining the error structure to be mocked" />
@@ -69,9 +68,9 @@ output application/java
     timeOut="9000000">
     <munit:enable-flow-sources>
       <munit:enable-flow-source
-        value="implementation-option-d-main-for-dynamic-reuse-test-suiteFlow" />
+        value="impl-option-d-main-for-dynamic-reuse-test-suiteFlow" />
       <munit:enable-flow-source
-        value="implementation-option-d-mock-test-test-suite-test-dynamic-FlowTest" />
+        value="impl-option-d-mock-test-test-suite-test-dynamic-FlowTest" />
     </munit:enable-flow-sources>
     <munit:behavior>
       <munit-tools:mock-when
@@ -86,7 +85,7 @@ output application/java
             attributeName="url" />
         </munit-tools:with-attributes>
         <munit-tools:then-call
-          flow="implementation-option-d-mock-test-test-suite-test-dynamic-FlowTest" />
+          flow="impl-option-d-mock-test-test-suite-test-dynamic-FlowTest" />
       </munit-tools:mock-when>
     </munit:behavior>
     <munit:execution>
@@ -111,7 +110,7 @@ output application/java
         is='#[MunitTools::equalTo("INTERNAL_SERVER_ERROR")&#93;' /> [STUDIO] -->
     </munit:validation>
   </munit:test>
-  <flow name="implementation-option-d-mock-test-test-suite-test-dynamic-FlowTest">
+  <flow name="impl-option-d-mock-test-test-suite-test-dynamic-FlowTest">
     <ee:transform
       doc:name="munitHttpError {description , errorType , payload };">
       <ee:message>
@@ -130,7 +129,7 @@ output application/java
       </ee:variables>
     </ee:transform>
     <flow-ref
-      doc:name="FlowRef implementation-option-d-main-for-dynamic-reuse-test-suiteFlow"
-      name="implementation-option-d-main-for-dynamic-reuse-test-suiteFlow" />
+      doc:name="FlowRef impl-option-d-main-for-dynamic-reuse-test-suiteFlow"
+      name="impl-option-d-main-for-dynamic-reuse-test-suiteFlow" />
   </flow>
 </mule>

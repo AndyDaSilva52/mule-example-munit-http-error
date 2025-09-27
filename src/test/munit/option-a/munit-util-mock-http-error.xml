@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+  xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+  xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+  xmlns:http="http://www.mulesoft.org/schema/mule/http"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+  xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+  xmlns="http://www.mulesoft.org/schema/mule/core"
+  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+  xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+    http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+    http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+    http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+    http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+  <munit:config
+    name="munit-util-mock-http-request-for-errorMessage-using-listener-localhost-test-suite.xml" />
+
+
+
+  <munit:before-suite
+    name="munit-util-mock-http-errorBefore_Suite"
+    doc:id="ddcfbcb1-ef61-45b9-af3a-70cb16706c27">
+    <logger
+      level="INFO"
+      doc:name="doc: There was a trying in place the to common flow (listener and request) in this MUnit Test Case, but for some reason randomly happens to now load when enabled the flows in the test case"
+      doc:id="2c24f8a0-0b49-4b7d-bdca-299567265ea7"
+      message="Before Suite" />
+  </munit:before-suite>
+
+
+
+</mule>

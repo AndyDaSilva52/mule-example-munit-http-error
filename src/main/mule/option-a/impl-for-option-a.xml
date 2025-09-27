@@ -10,20 +10,7 @@
     http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
     http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
-  <http:request-config
-    name="HTTP_Request_configuration_External"
-    doc:name="HTTP Request configuration"
-    basePath="/api" />
-  <http:request-config
-    name="HTTP_Request_configuration_System"
-    doc:name="HTTP Request configuration"
-    basePath="/api" />
-  <http:request-config
-    name="HTTP_Request_configuration_Process"
-    doc:name="HTTP Request configuration"
-    basePath="/api" />
-
-  <sub-flow name="implementation-for-option-a.subflow">
+  <sub-flow name="impl-for-option-a">
     <logger
       level="INFO"
       doc:name="INFO BEFORE"
@@ -31,10 +18,9 @@
     <try doc:name="Try">
       <http:request
         method="GET"
-        doc:name="HTTP Req External GET /health"
-        config-ref="HTTP_Request_configuration_External"
-        path="/health"
-        sendBodyMode="ALWAYS" />
+        doc:name="HTTP Req External"
+        sendBodyMode="ALWAYS"
+        url="http://example.com/external" />
       <error-handler>
         <on-error-continue
           enableNotifications="true"
@@ -44,17 +30,16 @@
           <logger
             level="ERROR"
             message="#[output application/json --- { tracepoint: 'EXCEPTION', }]"
-            doc:name="ERROR EXCEPTION" />
+            doc:name="ERROR EXCEPTION Req External" />
         </on-error-continue>
       </error-handler>
     </try>
     <try doc:name="Try">
       <http:request
         method="GET"
-        doc:name="HTTP Req System GET /health validResponseCode=200..204"
-        config-ref="HTTP_Request_configuration_System"
-        path="/health"
-        sendBodyMode="ALWAYS">
+        doc:name="HTTP Req System validResponseCode=200..204"
+        sendBodyMode="ALWAYS"
+        url="http://example.com/system">
         <http:response-validator>
           <http:success-status-code-validator
             values="200..204" />
@@ -67,7 +52,7 @@
           doc:name="On Error Continue"
           when="#[ (error.errorMessage.attributes.statusCode == 503) ]">
           <logger
-            doc:name="ERROR EXCEPTION"
+            doc:name="ERROR EXCEPTION Req System"
             message="#[output application/json --- { tracepoint: 'EXCEPTION', }]"
             level="INFO" />
         </on-error-continue>
@@ -75,11 +60,15 @@
     </try>
     <http:request
       method="GET"
-      doc:name="HTTP Req Process GET /health"
-      path="/health"
-      config-ref="HTTP_Request_configuration_Process"
-      sendBodyMode="ALWAYS">
+      doc:name="HTTP Req Process GET"
+      sendBodyMode="ALWAYS"
+      url="http://example.com/process">
     </http:request>
+    <logger
+      level="INFO"
+      doc:name="INFO AFTER"
+      doc:id="d5d8b5e7-342b-462f-915b-a4bdf67e94d8"
+      message="#[output application/json --- { tracepoint: 'AFTER', message   : message }]" />
   </sub-flow>
 
 
