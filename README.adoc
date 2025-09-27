@@ -90,21 +90,29 @@ You may add to your `pom.xml` file to ignore the file in the build:
 
 ```xml
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.2</version>
-                    <configuration>
-                        <excludes>
-                            <exclude>option-b\munitusage.xml</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <!-- INFO: This plugin is not intended to be used like this, but it works. You may need to find another solution and test if it works. -->
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete file="${project.build.outputDirectory}/option-b/munitusage.xml" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 ```
 
+== Option C
 
+https://wearecommunity.io/communities/integration/articles/1618
