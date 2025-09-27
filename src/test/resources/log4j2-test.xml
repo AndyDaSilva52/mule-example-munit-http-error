@@ -1,31 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Appenders>
+
+        <RollingFile name="FILE"
+            fileName=".${sys:file.separator}temp${sys:file.separator}logs${sys:file.separator}munit.log"
+            filePattern=".${sys:file.separator}temp${sys:file.separator}logs${sys:file.separator}munit_%i.log">
+            <PatternLayout pattern="%-5p %d [%t] %c: %m%n" />
+            <DefaultRolloverStrategy max="3" />
+            <Policies>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+            <PatternLayout pattern="%-5p %d [%t] %c: %m%n" />
         </Console>
     </Appenders>
 
     <Loggers>
-    
-        <!-- Http Logger shows wire traffic on DEBUG. -->
-<!--         <AsyncLogger name="org.mule.service.http.impl.service.HttpMessageLogger" level="DEBUG" /> -->
-        <AsyncLogger name="org.mule.service.http" level="WARN"/>
-        <AsyncLogger name="org.mule.extension.http" level="WARN"/>
-        
-         <!-- Reduce startup noise -->         
-        <AsyncLogger name="com.mulesoft.mule.runtime.plugin" level="WARN"/>               
-        <AsyncLogger name="org.mule.maven.client" level="WARN"/>
-        <AsyncLogger name="org.mule.runtime.core.internal.util" level="WARN"/>
-        <AsyncLogger name="org.quartz" level="WARN"/>
-        <AsyncLogger name="org.mule.munit.plugins.coverage.server" level="WARN"/>        
-               
-        <!-- Mule logger -->        
-        <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO"/>  
-
         <AsyncRoot level="INFO">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FILE" />
+            <AppenderRef ref="Console" />
         </AsyncRoot>
+
+        <AsyncLogger name="org.mule.munit.runner" level="DEBUG" />
+
+        <AsyncLogger name="com.gigaspaces" level="ERROR" />
+        <AsyncLogger name="com.j_spaces" level="ERROR" />
+        <AsyncLogger name="com.sun.jini" level="ERROR" />
+        <AsyncLogger name="net.jini" level="ERROR" />
+        <AsyncLogger name="org.apache" level="WARN" />
+        <AsyncLogger name="org.apache.cxf" level="WARN" />
+        <AsyncLogger name="org.springframework.beans.factory" level="WARN" />
+        <AsyncLogger name="org.mule" level="INFO" />
+        <AsyncLogger name="com.mulesoft" level="INFO" />
+        <AsyncLogger name="org.jetel" level="WARN" />
+        <AsyncLogger name="Tracking" level="WARN" />
+
+
+        <!-- Http Logger shows wire traffic on DEBUG. -->
+        <!--<AsyncLogger name="org.mule.service.http.impl.service.HttpMessageLogger" level="DEBUG"/> -->
+        <AsyncLogger name="org.mule.service.http" level="WARN" />
+        <AsyncLogger name="org.mule.extension.http" level="WARN" />
+
+
+        <!-- Reduce startup noise -->
+        <AsyncLogger name="com.mulesoft.mule.runtime.plugin" level="WARN" />
+        <AsyncLogger name="org.mule.maven.client" level="WARN" />
+        <AsyncLogger name="org.mule.runtime.core.internal.util" level="WARN" />
+        <AsyncLogger name="org.quartz" level="WARN" />
+        <AsyncLogger name="org.mule.munit.plugins.coverage.server" level="WARN" />
+        <AsyncLogger name="com.mulesoft.mule.runtime.module.batch" level="ERROR" />
+
+        <!-- Mule logger -->
+        <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO" />
+
+
+        <!-- BEGIN - Reduce MUnit log -->
+
+        <AsyncLogger name="org.mule.runtime.config.internal.dsl.spring.ComponentConfigurationBuilder" level="ERROR" />
+        <AsyncLogger name="com.mulesoft.mule.runtime.module.batch" level="ERROR" />
+        <!-- <AsyncLogger name="org.mule.weave.v2.model.service" level="ERROR" /> -->
+        <AsyncLogger name="org.mule.munit.runner.remote" level="INFO" />
+        <AsyncLogger name="org.mule.runtime.core.internal.construct.FlowConstructLifecycleManager" level="ERROR" />
+        <AsyncLogger name="org.mule.runtime.core.privileged.lifecycle.AbstractLifecycleManager" level="ERROR" />
+        <AsyncLogger name="org.mule.munit.runner.remote.api.server.RunnerServer" level="ERROR" />
+
+        <AsyncLogger name="org.mule.runtime.core.internal.security.tls.TlsProperties" level="ERROR" />
+        <AsyncLogger name="org.mule.runtime.module.tls.internal.DefaultTlsContextFactory" level="ERROR" />
+
+        <AsyncLogger name="org.mule.runtime.core.internal.exception" level="FATAL" />
+
+        <!-- <AsyncLogger name="org.mule.weave.v2" level="ERROR" /> -->
+        <!-- <AsyncLogger name="org.mule.weave.v2.el.WeaveScriptingParser" level="ERROR" /> -->
+
+
+        <!-- END - Reduce MUnit log -->
+
+        <AsyncLogger name="munit" level="INFO" />
+
+
     </Loggers>
 
 </Configuration>
