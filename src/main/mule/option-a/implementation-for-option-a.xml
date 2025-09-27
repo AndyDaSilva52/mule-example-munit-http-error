@@ -27,11 +27,7 @@
     <logger
       level="INFO"
       doc:name="INFO BEFORE"
-      message="#[output application/json --- 
-{
-	tracepoint: 'BEFORE',
-	message   : message
-}]" />
+      message="#[output application/json --- { tracepoint: 'BEFORE', message   : message }]" />
     <try doc:name="Try">
       <http:request
         method="GET"
@@ -47,10 +43,7 @@
           when="#[ ( error.errorMessage.attributes.statusCode == 400 ) and ( error.errorMessage.payload.message contains 'Account already exists!' ) ]">
           <logger
             level="ERROR"
-            message="#[output application/json --- 
-{
-	tracepoint: 'EXCEPTION',
-}]"
+            message="#[output application/json --- { tracepoint: 'EXCEPTION', }]"
             doc:name="ERROR EXCEPTION"
             doc:id="sgdinr" />
         </on-error-continue>
@@ -77,10 +70,7 @@
           <logger
             doc:name="ERROR EXCEPTION"
             doc:id="woqqvb"
-            message="#[output application/json ---
-{
-	tracepoint: 'EXCEPTION',
-}]"
+            message="#[output application/json --- { tracepoint: 'EXCEPTION', }]"
             level="INFO" />
         </on-error-continue>
       </error-handler>

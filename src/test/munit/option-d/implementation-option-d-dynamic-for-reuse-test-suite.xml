@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+  xmlns:tracing="http://www.mulesoft.org/schema/mule/tracing"
+  xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+  xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+  xmlns="http://www.mulesoft.org/schema/mule/core"
+  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+  xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/tracing http://www.mulesoft.org/schema/mule/tracing/current/mule-tracing.xsd">
+  <munit:config
+    name="implementation-option-d-dynamic-for-reuse-test-suite.xml" />
+
+  <flow
+    name="implementation-option-d-main-for-dynamic-reuse-test-suiteFlow"
+    doc:id="c3351f26-efbd-49e5-a35f-0c4cdfa7e6dd">
+    <logger
+      level="INFO"
+      doc:name="doc: This is the main flow that can be reused with a variable defining the error structure to be mocked"
+      doc:id="525a15ce-bfe1-4606-904f-ecd859ce774a" />
+    <ee:transform
+      doc:name="define munitHttpError looking to define default values in case it didn't"
+      doc:id="da542373-f3e6-484a-948d-13623827c002">
+      <ee:message>
+        <ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	description: vars.munitHttpError.description default 'Not Defined',
+	errorType  : vars.munitHttpError.errorType default java!org::mule::extension::http::api::error::HttpError::INTERNAL_SERVER_ERROR,
+	payload    : vars.munitHttpError.payload default {},
+}]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+    <try
+      doc:name="Try"
+      doc:id="29540691-6939-421a-a322-a3cffb63d62b">
+      <munit:set-event doc:name="Generate error with exception = resources/option-d/httpErrorDynamic.dwl" doc:id="e50ef359-880f-4e40-8782-f4d0dd3baf77" cloneOriginalEvent="true">
+        <munit:error id="HTTP:INTERNAL_SERVER_ERROR" exception="#[${file::option-d/httpErrorDynamic.dwl}]" />
+      </munit:set-event>
+      <munit:set-event doc:name="Generate error with exception = inline java http exception" doc:id="0740c0e7-e558-40fa-b325-dc3144d03f0b" cloneOriginalEvent="true">
+        <munit:error id="HTTP:INTERNAL_SERVER_ERROR" exception="#[java!org::mule::extension::http::api::request::validator::ResponseValidatorTypedException::new(vars.munitHttpError.description,  vars.munitHttpError.errorType, java!org::mule::runtime::api::message::Message::of(  java!org::mule::runtime::api::metadata::TypedValue::new( write(vars.munitHttpError.payload,'application/json',{indent:false}), java!org::mule::runtime::api::metadata::DataType::JSON_STRING ) ) )]" />
+      </munit:set-event>
+      <error-handler>
+        <on-error-propagate
+          enableNotifications="true"
+          logException="true"
+          doc:name="On Error Propagate"
+          doc:id="43f26367-6ad0-45a4-bdf1-45d0dff0d4dd">
+          <remove-variable
+            doc:name="munitHttpError ( remove the context for munitHttpErro in case there is another mock right ahead )"
+            doc:id="34ccbc2d-a416-43f6-9cf1-a5bd01e9bc33"
+            variableName="munitHttpError" />
+        </on-error-propagate>
+      </error-handler>
+    </try>
+    <remove-variable
+      doc:name="munitHttpError ( remove the context for munitHttpErro in case there is another mock right ahead )"
+      doc:id="59d4b804-94a0-4a7d-8de8-1e37e7a093f7"
+      variableName="munitHttpError" />
+  </flow>
+  <munit:test
+    name="test-test-suite-test-dynamic-FlowTest"
+    doc:id="22f9614b-9bc2-46da-997e-6a9ea97b177b"
+    timeOut="9000000">
+    <munit:enable-flow-sources>
+      <munit:enable-flow-source
+        value="implementation-option-d-main-for-dynamic-reuse-test-suiteFlow" />
+      <munit:enable-flow-source
+        value="implementation-option-d-mock-test-test-suite-test-dynamic-FlowTest" />
+    </munit:enable-flow-sources>
+    <munit:behavior>
+      <munit-tools:mock-when
+        doc:name="Request -&gt; then call"
+        doc:id="d2986072-62ff-4474-b555-40a8ea9f6dec"
+        processor="http:request">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute
+            whereValue="GET"
+            attributeName="method" />
+          <munit-tools:with-attribute
+            whereValue="http://example.com/some-resource"
+            attributeName="url" />
+        </munit-tools:with-attributes>
+        <munit-tools:then-call
+          flow="implementation-option-d-mock-test-test-suite-test-dynamic-FlowTest" />
+      </munit-tools:mock-when>
+    </munit:behavior>
+    <munit:execution>
+      <flow-ref
+        doc:name="Flow-ref to testFlow"
+        doc:id="b7e00c00-40ca-4ed8-ba49-cd49cd707a5b"
+        name="test2Flow" />
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:verify-call doc:name="Logger Some logic for CODE_B" doc:id="978ea3e0-a106-4d59-8164-55e2bf4f5455" processor="logger">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="Some logic for CODE_B" attributeName="doc:name" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <!-- [STUDIO:"Assert that"]<munit-tools:assert-that
+        doc:name="Assert that"
+        doc:id="795d1753-4cad-4941-a2de-ce9a6048ce58"
+        message="#[&quot;error.errorType.identifier [$(error.errorType.identifier default '')&#93; is not equal to INTERNAL_SERVER_ERROR&quot;&#93;"
+        expression="#[error.errorType.identifier&#93;"
+        is='#[MunitTools::equalTo("INTERNAL_SERVER_ERROR")&#93;' /> [STUDIO] -->
+    </munit:validation>
+  </munit:test>
+  <flow
+    name="implementation-option-d-mock-test-test-suite-test-dynamic-FlowTest"
+    doc:id="a7a66aad-5c8a-4195-8bf7-bab097777f9c">
+    <ee:transform
+      doc:name="munitHttpError {description , errorType , payload };"
+      doc:id="b68ba17e-312f-47d8-8ac2-10feebcd9647">
+      <ee:message>
+      </ee:message>
+      <ee:variables>
+        <ee:set-variable variableName="munitHttpError"><![CDATA[%dw 2.0
+output application/java
+---
+{
+	description: 'Internal Server Error',
+	errorType  : java!org::mule::extension::http::api::error::HttpError::INTERNAL_SERVER_ERROR,
+	payload    : {
+		"errorCode": "CODE_B"
+	}
+}]]></ee:set-variable>
+      </ee:variables>
+    </ee:transform>
+    <flow-ref
+      doc:name="FlowRef implementation-option-d-main-for-dynamic-reuse-test-suiteFlow"
+      doc:id="e4b74178-ff7c-462a-b8af-d25f0e39379d"
+      name="implementation-option-d-main-for-dynamic-reuse-test-suiteFlow" />
+  </flow>
+</mule>

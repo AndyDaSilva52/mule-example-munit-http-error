@@ -3,6 +3,23 @@
 :sectnums: |,all|
 toc::[]
 
+Option A is the best solution and well explain.
+Option D it will work, but the error.errorType will not complain with the expected error.errorType (namescace MULE / identifier UNKNOWN), and it will need a few extra steps to not show as error in the Mule Configuration Files.
+
+The base for all of the options is to enable the flow in each munit test
+
+In case you find something like this error:
+
+====
+[source,bash,lineenums]
+----
+org.mule.munit.runner.model.TestExecutionException: Error [MULE:UNKNOWN] while running test 'test-test-suite-test-dynamic-FlowTest':Invalid flow name: 'munit-set-error-code-event-flow'. HINT: only flows can be used, not sub-flows
+	at org.mule.munit.runner.flow.TestFlow.run(TestFlow.java:320)
+	at org.mule.munit.runner.model.Test.run(Test.java:98)
+	at org.mule.munit.runner.model.Suite.run(Suite.java:112)
+----
+====
+
 == Option A
 
 This example shows how to test HTTP error in Mule 4 with Munit 2.
@@ -116,3 +133,29 @@ You may add to your `pom.xml` file to ignore the file in the build:
 == Option C
 
 https://wearecommunity.io/communities/integration/articles/1618
+
+
+== Option D
+
+- not the best option, because the errorType returns MULE:UNKNOWN
+- 
+
+https://stackoverflow.com/questions/71778157/how-to-raise-a-custom-error-with-internal-payload-error-errormessage-payload-i
+
+when you find the issue below:
+
+You probably will have 
+
+====
+[source,bash,lineenums]
+----
+org.mule.runtime.api.exception.MuleRuntimeException: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'munit-set-error-code-event-flow': Cannot create inner bean '(inner bean)#4a329eca' of type [org.mule.munit.runner.processors.SetEventProcessor] while setting bean property 'messageProcessors' with key [1]; nested exception is Error creating bean with name '(inner bean)#4a329eca': Failed properties: Failed to convert property value of type 'org.mule.munit.common.api.model.UntypedEventError' to required type 'org.mule.munit.common.api.model.UntypedEventError' for property 'error'; class java.lang.String cannot be cast to class java.lang.Throwable (java.lang.String and java.lang.Throwable are in module java.base of loader 'bootstrap'); nested exception is Failed properties: Failed to convert property value of type 'org.mule.munit.common.api.model.UntypedEventError' to required type 'org.mule.munit.common.api.model.UntypedEventError' for property 'error'; class java.lang.String cannot be cast to class java.lang.Throwable (java.lang.String and java.lang.Throwable are in module java.base of loader 'bootstrap')
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'munit-set-error-code-event-flow': Cannot create inner bean '(inner bean)#4a329eca' of type [org.mule.munit.runner.processors.SetEventProcessor] while setting bean property 'messageProcessors' with key [1]; nested exception is Error creating bean with name '(inner bean)#4a329eca': Failed properties: Failed to convert property value of type 'org.mule.munit.common.api.model.UntypedEventError' to required type 'org.mule.munit.common.api.model.UntypedEventError' for property 'error'; class java.lang.String cannot be cast to class java.lang.Throwable (java.lang.String and java.lang.Throwable are in module java.base of loader 'bootstrap'); nested exception is Failed properties: Failed to convert property value of type 'org.mule.munit.common.api.model.UntypedEventError' to required type 'org.mule.munit.common.api.model.UntypedEventError' for property 'error'; class java.lang.String cannot be cast to class java.lang.Throwable (java.lang.String and java.lang.Throwable are in module java.base of loader 'bootstrap')
+...
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'error_handlingSub_FlowTest': Cannot create inner bean '(inner bean)#2babdabc' of type [org.mule.munit.runner.component.factory.TestProcessorChainFactory_ByteBuddy_org_mule_runtime_core_privileged_processor_chain_MessageProcessorChain] while setting bean property 'processorChains' with key [0]
+----
+====
+
+This is probably related to the MUnit Maven Plugin
+
+Revise the version, it's being know that version `3.4.0` it has this issue for example. You can confirm by executing only `test/munit/option-d/docs-mule-set-event-with-error-test-suite.xml` to validate the same usage of attribute `exception` to thrown an error.

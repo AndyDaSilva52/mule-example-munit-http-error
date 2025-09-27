@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+  xmlns:http="http://www.mulesoft.org/schema/mule/http"
+  xmlns="http://www.mulesoft.org/schema/mule/core"
+  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+  <http:listener-config name="HTTP_Listener_configOptionD">
+    <http:listener-connection
+      host="0.0.0.0"
+      port="8081" />
+  </http:listener-config>
+
+  <flow name="test2Flow">
+    <http:listener
+      config-ref="HTTP_Listener_configOptionD"
+      path="/test" />
+    <logger
+      level="INFO"
+      doc:name="Some logic before request"
+      message="Some logic before request" />
+    <try doc:name="Try">
+      <http:request
+        method="GET"
+        doc:name="Request"
+        url="http://example.com/some-resource" />
+      <error-handler>
+        <on-error-continue
+          enableNotifications="true"
+          logException="true"
+          doc:name="Continue_when error.errorMessage.payload.errorCode==CODE_A"
+          when='error.errorMessage.payload.errorCode=="CODE_A"'>
+          <logger
+            level="INFO"
+            doc:name="Some logic for CODE_A"
+            message="Some logic for CODE_A" />
+        </on-error-continue>
+        <on-error-continue
+          enableNotifications="false"
+          logException="false"
+          doc:name="Continue_when error.errorMessage.payload.errorCode==CODE_B"
+          when='error.errorMessage.payload.errorCode=="CODE_B"'>
+          <logger
+            level="INFO"
+            doc:name="Some logic for CODE_B"
+            message="Some logic for CODE_B" />
+        </on-error-continue>
+      </error-handler>
+    </try>
+    <logger
+      level="INFO"
+      doc:name="Some logic After request"
+      message="Some logic After request" />
+  </flow>
+</mule>

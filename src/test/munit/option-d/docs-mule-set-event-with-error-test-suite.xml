@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+  xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+  xmlns="http://www.mulesoft.org/schema/mule/core"
+  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+  xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+  <munit:config name="docs-mule-set-event-with-error-test-suite.xml" />
+
+  <!-- [STUDIO:"Link: https://docs.mulesoft.com/munit/latest/test-mock-errors-cookbook"]<munit:test name="Link: https://docs.mulesoft.com/munit/latest/test-mock-errors-cookbook" doc:id="631aedce-cdcc-4a5a-b36a-fab305d46ef8" /> [STUDIO] -->
+  <munit:test
+    name="error_handlingSub_FlowTest"
+    description="Test subFlow">
+    <munit:behavior>
+      <munit:set-event>
+        <munit:error
+          id="OS:INVALID_KEY"
+          exception="#[java!java::lang::Exception::new('Invalid Key')]" />
+      </munit:set-event>
+    </munit:behavior>
+    <munit:execution>
+      <flow-ref name="error-handlingSub_Flow" />
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:verify-call processor="mule:logger">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute
+            attributeName="message"
+            whereValue="#['Execution failed with: Invalid Key']" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+    </munit:validation>
+  </munit:test>
+
+</mule>
