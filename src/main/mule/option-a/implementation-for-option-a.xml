@@ -44,8 +44,7 @@
           <logger
             level="ERROR"
             message="#[output application/json --- { tracepoint: 'EXCEPTION', }]"
-            doc:name="ERROR EXCEPTION"
-            doc:id="sgdinr" />
+            doc:name="ERROR EXCEPTION" />
         </on-error-continue>
       </error-handler>
     </try>
@@ -69,7 +68,6 @@
           when="#[ (error.errorMessage.attributes.statusCode == 503) ]">
           <logger
             doc:name="ERROR EXCEPTION"
-            doc:id="woqqvb"
             message="#[output application/json --- { tracepoint: 'EXCEPTION', }]"
             level="INFO" />
         </on-error-continue>

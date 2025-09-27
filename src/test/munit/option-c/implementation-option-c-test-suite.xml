@@ -43,7 +43,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
     <munit:validation>
       <munit-tools:verify-call
         doc:name="Transform extract downstream api error description"
-        doc:id="4c80f5a0-9ae4-4e01-9400-369055b2f433"
         processor="ee:transform">
         <munit-tools:with-attributes>
           <munit-tools:with-attribute

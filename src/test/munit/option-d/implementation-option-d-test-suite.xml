@@ -16,8 +16,9 @@
   <munit:test
     name="test-test-suite-testFlowTest"
     timeOut="9000000">
-    <munit:enable-flow-sources >
-      <munit:enable-flow-source value="munit-set-error-code-event-flow" />
+    <munit:enable-flow-sources>
+      <munit:enable-flow-source
+        value="munit-set-error-code-event-flow" />
     </munit:enable-flow-sources>
     <munit:behavior>
       <munit-tools:mock-when
@@ -55,9 +56,13 @@
     <logger
       level="TRACE"
       doc:name="doc: Set Event" />
-    <munit:set-event doc:name="Generate error with exception = resources/option-d/httpError.dwl" cloneOriginalEvent="true" >
-      <munit:error id="HTTP:INTERNAL_SERVER_ERROR" exception="#[${file::option-d/httpError.dwl}]" />
-    </munit:set-event>
+    <!-- [STUDIO:"Generate error with exception = resources/option-d/httpError.dwl"]<munit:set-event
+      doc:name="Generate error with exception = resources/option-d/httpError.dwl"
+      cloneOriginalEvent="true">
+      <munit:error
+        id="HTTP:INTERNAL_SERVER_ERROR"
+        exception="#[${file::option-d/httpError.dwl}&#93;" />
+    </munit:set-event> [STUDIO] -->
   </flow>
   <!-- -->
   <!-- -->
@@ -65,8 +70,9 @@
   <munit:test
     name="test-test-suite-test-inline-FlowTest"
     timeOut="9000000">
-    <munit:enable-flow-sources >
-      <munit:enable-flow-source value="munit-set-error-code-event-inline-flow" />
+    <munit:enable-flow-sources>
+      <munit:enable-flow-source
+        value="munit-set-error-code-event-inline-flow" />
     </munit:enable-flow-sources>
     <munit:behavior>
       <munit-tools:mock-when

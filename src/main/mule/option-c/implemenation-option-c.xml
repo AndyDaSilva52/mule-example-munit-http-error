@@ -32,7 +32,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
         logException="true"
         doc:name="On Error Continue"
         when="#[error.errorMessage.attributes.statusCode == 404]">
-        <ee:transform doc:name="extract downstream api error description" doc:id="gdirs">
+        <ee:transform doc:name="extract downstream api error description">
           <ee:message>
             <ee:set-payload><![CDATA[%dw 2.0
 output application/json

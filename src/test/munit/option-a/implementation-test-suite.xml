@@ -149,7 +149,6 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             attributeName="config-ref" />
         </munit-tools:with-attributes>
       </munit-tools:verify-call>
-
     </munit:validation>
   </munit:test>
 

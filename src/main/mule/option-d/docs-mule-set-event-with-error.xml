@@ -4,14 +4,17 @@
   xmlns:os="http://www.mulesoft.org/schema/mule/os"
   xmlns="http://www.mulesoft.org/schema/mule/core"
   xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
 
   <flow name="retrieveFlow">
     <os:retrieve key="#[payload.key]" />
     <error-handler>
       <on-error-continue>
-        <flow-ref name="error-handlingSub_Flow" doc:name="FlowRef error-handlingSub_Flow"/>
+        <flow-ref
+          name="error-handlingSub_Flow"
+          doc:name="FlowRef error-handlingSub_Flow" />
       </on-error-continue>
     </error-handler>
   </flow>
