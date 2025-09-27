@@ -6,6 +6,8 @@ toc::[]
 Option A is the best solution and well explain.
 Option D it will work, but the error.errorType will not complain with the expected error.errorType (namescace MULE / identifier UNKNOWN), and it will need a few extra steps to not show as error in the Mule Configuration Files.
 
+https://help.salesforce.com/s/articleView?id=001120407&type=1
+
 The base for all of the options is to enable the flow in each munit test
 
 In case you find something like this error:
@@ -59,7 +61,7 @@ It's important to enable the flows that will be used in the test
 
 If this error persist in some way, you may move the flows from one file to the same where the munit test, but in this case you will need to concentrate all munit tests in one test suite only.
 
-You may think in Import the other file, but this doesn't work his is a Bug and you will need to Import the file that has the flows for the Request and Listener:
+You may think in Import the other file, but this doesn't work very well, so avoid this approach:
 
 ```xml
 <import
@@ -92,13 +94,185 @@ This approach use the dynamic port feature from MUnit
 https://docs.mulesoft.com/munit/latest/dynamic-ports
 
 
+https://stackoverflow.com/questions/78878885/munits-and-error-handling-how-to-mock-error-error-mulemessage
 
+The question linked in Harshank's comment is close to what I do for tests like this, where I want to produce an error from a mock that is similar to the one that comes from a connector, including attributes and payload. What I have done is to create a flow in my munit suite that really does raise the same kind of error, if I can, and then use <munit-tools:then-call> in my mock to force the error.
+
+In your case, it seems you can create a HTTP listener flow that simply responds with one of your intended status codes, and use an HTTP request in a flow inside your munit suite to send the HTTP request.
 
 == Option B
 
 A simple flow and munit test similar to the option B, but in this case the HTTP Listener is in a flow inside  is on `src/main/`
 
 Original source code: link:https://help.salesforce.com/s/articleView?id=001117133&type=1[How to test HTTP error in Mule 4 with Munit 2]
+
+Loading
+
+Publish Date: Aug 1, 2025
+
+Task
+
+## GOAL
+
+- Building Munit test case to test HTTP Listener returns proper Mule error (i.e. HTTP:NOT\_FOUND)
+- Building Munit test case to test HTTP Listener returns proper HTTP status code (i.e., 404 not found)
+- Building Munit test case to test HTTP Listener returns proper HTTP message body
+- Understand how APIKit's error correlating to HTTP error
+
+## PREREQUISITE
+
+- Understand how error is handled in Mule Runtime, specific 1. How message processor generate error 2. How HTTP Listener works with Mule error
+- Understand how Munit calls application flow and difference between sending request to HTTP listener and Flow reference
+
+Steps
+
+Following procedure is based on attached sample Mule Application " [TestingHTTPErrorWithMunit.jar](https://help.mulesoft.com/servlet/servlet.FileDownload?file=0152T000006NPVR) "  
+Create Mule Flow "HTTPEndpoint" which has HTTP Listener configured listening to 0.0.0.0:8081/ as event source, add Processor "Set Payload" after to complete the flow.
+```
+<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="eab071b7-57ac-4a2b-a304-05de2dfdcfcf" >
+    <http:listener-connection host="0.0.0.0" port="8081" />
+</http:listener-config>
+<flow name="HTTPEndpoint" doc:id="aad85f21-77ba-4ab7-a773-dca1a4791672" >
+    <http:listener doc:name="Listener" doc:id="17d4408b-ab4f-4489-8556-1794e4f7f866" config-ref="HTTP_Listener_config" path="/"/>
+    <set-payload value='#["Hello World"]' doc:name="Set Payload" doc:id="a4f116eb-56d7-49c2-9282-bcee148caf7b" />
+</flow>
+```
+
+#### MULE ERROR TEST CASE
+
+1. Create Munit Test by adding Munit configuration file under "/src/test/munit" with test file name "testHTTPNotFound404Error", select "HTTPEndpoint" as flow to test.
+2. Modify generated Munit test flow name from "testHTTPNotFound404Error-HTTPEndpointTest" to "tsetHTTPNotFound404Error-MuleError" and delete Flow Reference at Execution scope.
+3. Configure test flow "tsetHTTPNotFound404Error-MuleError" with Expected error type "HTTP:NOT\_FOUND" and Enable "HTTPEndpoint" flow source
+4. Add HTTP Request processor to Execution Scope and configure it sending request to Mule Flow "HTTPEndpoint" HTTP Listener but with path /NotExist which is not defined at HTTP Listener.
+```
+<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="08b9b57c-0b48-47c5-b79c-e757d2764a55" >
+        <http:request-connection host="localhost" port="8081" />
+</http:request-config>
+.
+.
+.
+<http:request method="GET" doc:name="Request" doc:id="c24257a2-2ec2-45f9-a7a0-152ca8129985" config-ref="HTTP_Request_configuration" path="/NotExist"/>
+```
+1. Run Munit Test and confirm test succeeds.
+```
+<munit:test name="testHTTPNotFound404Error-MuleError" doc:id="8c2b7425-402c-4ee4-9903-bd3878b14d0e" description="Test" expectedErrorType="HTTP:NOT_FOUND">
+    <munit:enable-flow-sources >
+        <munit:enable-flow-source value="HTTPEndpoint" />
+    </munit:enable-flow-sources>
+    <munit:execution>
+        <http:request method="GET" doc:name="Request" doc:id="c24257a2-2ec2-45f9-a7a0-152ca8129985" config-ref="HTTP_Request_configuration" path="/NotExist"/>
+    </munit:execution>
+</munit:test>
+```
+
+When HTTP Request at Munit Test sends request to Mule Flow "HTTPEndpoint" HTTP Listener, HTTP Listener will try to route request to 0.0.0.0:8081/NotExist. Since /NotExist path is not defined in HTTP Listener, HTTP Listener returns HTTP Response with status line contains 404 Not Found(HTTP Listener doesn't throw Mule error). After HTTP Request receives HTTP Response with 404 in status line, HTTP Request throws HTTP:NOT\_FOUND Mule error. As expected error type of test flow "testHTTPNotFoundError-MuleError" is set to "HTTP:NOT\_FOUND", test will succeed. Imagining Mule test is a try scope with On Error Propagate error handling for HTTP:NOT\_FOUND error type may help.
+
+#### HTTP STATUS CODE TEST CASE
+
+1. Adding a new test with name "testHTTPNotFoundError-HTTPStatusCode", enable "HTTPEndpoint" flow source and add HTTP Request uses same HTTP request configuration. In order to prevent HTTP Request throws HTTP:NOT\_FOUND Mule error so we can verify status code at Test's Validation Scope, configure HTTP Request's response validator with 404
+```
+<http:request method="GET" doc:name="Request" doc:id="73b43fde-1001-4b1c-b8a0-c007ea979099" config-ref="HTTP_Request_configuration" path="/NotExist">
+    <http:response-validator >
+        <http:success-status-code-validator values="404" />
+    </http:response-validator>
+</http:request>
+```
+1. Add Processor "Assert equals" to verify status code 404 is returned from HTTP Listener as following
+```
+<http:request method="GET" doc:name="Request" doc:id="73b43fde-1001-4b1c-b8a0-c007ea979099" config-ref="HTTP_Request_configuration" path="/NotExist">
+    <http:response-validator >
+        <http:success-status-code-validator values="404" />
+    </http:response-validator>
+</http:request>
+```
+1. Run Munit Tests and confirm both test succeed.
+```
+<munit:test name="testHTTPNotFound404Error-HTTPStatusCode" doc:id="03ac87f6-b72d-44f2-9a59-2a7dc64b5d81">
+    <munit:enable-flow-sources >
+        <munit:enable-flow-source value="HTTPEndpoint" />
+    </munit:enable-flow-sources>
+    <munit:execution >
+        <http:request method="GET" doc:name="Request" doc:id="73b43fde-1001-4b1c-b8a0-c007ea979099" config-ref="HTTP_Request_configuration" path="/NotExist">
+            <http:response-validator >
+                <http:success-status-code-validator values="404" />
+            </http:response-validator>
+        </http:request>
+    </munit:execution>
+    <munit:validation >
+        <munit-tools:assert-equals doc:name="Assert equals" doc:id="b6662157-0951-4b80-a8e8-00a14991bc20" actual="#[attributes.statusCode]" expected="#[404]" message="Target HTTP Endpoint doesn't return 404 status code as expected"/>
+    </munit:validation>
+</munit:test>
+```
+
+#### HTTP MESSAGE BODY TEST CASE
+
+1. Refactor Mule Flow "HTTPEndpoint" to add HTTP Request after "Set Payload" processor and corresponding HTTP response body via "Set Payload" at "Error handling" as following, set statusCode variable will lead HTTP Listener returns 404 Status Code rather than default 500 Internal Server Error
+```
+<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="339e6e8c-baae-4d34-8300-7b201957f57a" >
+    <http:request-connection host="localhost" port="8081" />
+</http:request-config>
+<flow name="HTTPEndpoint" doc:id="aad85f21-77ba-4ab7-a773-dca1a4791672" >
+    <http:listener doc:name="Listener" doc:id="17d4408b-ab4f-4489-8556-1794e4f7f866" config-ref="HTTP_Listener_config" path="/">
+        <http:error-response statusCode="#[vars.statusCode]" >
+            <http:body ><![CDATA[#[output text/plain --- payload]]]></http:body>
+        </http:error-response>
+    </http:listener>
+    <set-payload value='#["Hello World"]' doc:name="Set Payload" doc:id="a4f116eb-56d7-49c2-9282-bcee148caf7b" />
+    <http:request method="GET" doc:name="Request" doc:id="a060f2af-cb12-4b96-b307-bb7726c5f4d4" config-ref="HTTP_Request_configuration1" path="/NotExist"/>
+    <error-handler >
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e24d8acf-967b-4995-8117-c3d0f741f3eb" type="HTTP:NOT_FOUND">
+            <set-payload value="Upstream service resource not available" doc:name="Set Payload" doc:id="8e29b05e-bf45-4903-b1a1-200fda680e28" />
+            <set-variable value="#[404]" doc:name="Set Variable" doc:id="5090dd46-ba6e-4e08-8a26-248def60d2fc" variableName="statusCode"/>
+        </on-error-propagate>
+    </error-handler>
+</flow>
+```
+![User-added image](https://prod-or-s3-cdssf-storage.s3.us-west-2.amazonaws.com/00D30000000XsfGEAS/kA0Hx000000CLec/ka0Hx000001yNNl/00NHx0000000wO1-0EMHx00000BnlmA)
+1. Add new test "testHTTPNotFound404ErrorTest-HTTPMessageBody", to avoid sending request at Mule Flow, use "Mock When" processor as following
+```
+<munit-tools:mock-when doc:name="Mock when" doc:id="1a456372-e7a0-4ff9-a613-2b7d91b586b5" processor="http:request">
+    <munit-tools:with-attributes >
+        <munit-tools:with-attribute whereValue="GET" attributeName="method" />
+        <munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+        <munit-tools:with-attribute whereValue="HTTP_Request_configuration1" attributeName="config-ref" />
+        <munit-tools:with-attribute whereValue="/NotExist" attributeName="path" />
+    </munit-tools:with-attributes>
+    <munit-tools:then-return >
+        <munit-tools:error typeId="HTTP:NOT_FOUND" />
+    </munit-tools:then-return>
+</munit-tools:mock-when>
+```
+1. To invoke Mule Flow's HTTP Listener successfully, add "HTTP Request" at test flow "testHTTPNotFound404ErrorTest-HTTPMessageBody"'s Execution scope as following
+```
+<http:request method="GET" doc:name="Request" doc:id="c0c10668-5aaa-4a10-a491-6cd2406fe660" config-ref="HTTP_Request_configuration" path="/">
+    <http:response-validator >
+        <http:success-status-code-validator values="404" />
+    </http:response-validator>
+</http:request>
+```
+Note request sends to 0.0.0.0:8081/ URL with 404 as success response validator
+1. Add "Assert equals" to Validation scope to validate HTTP Response returned from HTTP Listener which contains message that setted at Error hanlding.
+```
+<munit:validation >
+    <munit-tools:assert-equals doc:name="Assert equals" doc:id="9c538e3c-e651-47bf-8e75-51cd358016a8" actual="#[payload]" expected='#["Upstream service resource not available"]'/>
+</munit:validation>
+```
+1. Run Munit Tests and confirm both test succeed.
+  
+Disclaimer: this is provided as a reference for your own usage and it's not part of the official Mule product so its use will be considered as a custom implementation made by the customer.  
+  
+
+Additional Resources
+
+[TestingHTTPErrorWithMunit.jar](https://help.mulesoft.com/servlet/servlet.FileDownload?file=0152T000006NPVR)
+
+Knowledge Article Number
+
+001117133
+
+Loading
+
+Salesforce Help | Article
 
 In this option is important to consider move the flow for HTTP Listener from `munitusage.xml` in the directory `src\main\mule\option-b` so the flow and the respective configuration goes to `src/test/munit/option-b`.
 This avoid any invalid usage or even the deploy on Mule Runtime.
@@ -130,10 +304,218 @@ You may add to your `pom.xml` file to ignore the file in the build:
     </build>
 ```
 
+
+
 == Option C
 
 https://wearecommunity.io/communities/integration/articles/1618
 
+
+the idea behind our solution is to make an internal HTTP call that would act in place of the actual one.
+
+### Introduction
+
+Previously in Mule 3 and MUnit 1, if one wanted to mock an HTTP request with an error response rather than just throwing an arbitrary exception, it was just a matter of defining the *payload*  and  *http.status*  inbound property within a  *mock:when* component. Something along the following lines:
+
+```xml
+<mock:when messageProcessor="http:request" doc:name="Mock HTTP Request: GET User">
+    <mock:with-attributes>
+      <mock:with-attribute name="doc:name" whereValue="#['HTTP Request: GET User']"/>
+    </mock:with-attributes>
+    <mock:then-return payload="#[&quot;{'code':'retrieve_user_error','description':'User does not exist.'}&quot;]" mimeType="application/json">
+      <mock:inbound-properties>
+        <mock:inbound-property key="http.status" value="404"/>
+      </mock:inbound-properties>
+    </mock:then-return>
+  </mock:when>
+```
+
+With all the error handling changes and improvements made in Mule 4, needless to say, testing error scenarios has changed quite a bit in MUnit 2. As a result, there does not seem to be a straightforward way of mocking an HTTP request component such that it returns with an error having a response body and an HTTP status code attribute.
+
+One might quickly resort to leveraging the new handy *error type* functionality but this does not solve our problem, or at least we could not find a way to do so. That said, we managed to come up with a workaround for this. Read more below to find out how.
+
+### Scenario
+
+Consider a flow that has the following:
+
+1. An HTTP request to a downstream API.
+2. An error handler with a *when* expression that evaluates the error response HTTP status code and a transformation that uses the error response body:  
+	*error.errorMessage.attributes.statusCode == 404  
+	**error.errorMessage.payload.description*
+
+```xml
+<flow name="test-mock-downstream-http-error-response-flow">
+    <http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/"/>
+    <http:request method="GET" doc:name="Request" config-ref="HTTP_Request_configuration-DownstreamAPI" path="/users/123"/>
+    <logger level="INFO" doc:name="Logger"/>
+    <error-handler>
+      <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" when="#[error.errorMessage.attributes.statusCode == 404]">
+        <ee:transform doc:name="extract downstream api error description">
+          <ee:message>
+            <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  errorDescription: error.errorMessage.payload.description
+}]]></ee:set-payload>
+          </ee:message>
+        </ee:transform>
+      </on-error-continue>
+    </error-handler>
+  </flow>
+```
+
+Our first instinct is to simply tell the *mock-when* component to return with an *HTTP:NOT\_FOUND* error response.
+
+```xml
+<munit-tools:mock-when doc:name="Mock HTTP Request" processor="http:request">
+    <munit-tools:with-attributes>
+      <munit-tools:with-attribute whereValue="Request" attributeName="doc:name"/>
+    </munit-tools:with-attributes>
+    <munit-tools:then-return>
+      <munit-tools:error typeId="HTTP:NOT_FOUND"/>
+    </munit-tools:then-return>
+  </munit-tools:mock-when>
+```
+
+Using this approach, the ***error*** object is created with the right error type but it would not contain any attributes or payload causing the error handling scope to be skipped since the *when* expression will not evaluate to true. The *error.errorMessage* can be seen evaluating to *null* if we explore the error object using the debugger:
+
+![](https://d3373sevsv1jc.cloudfront.net/uploads/communities_production/article_block/13337/B2B1A026C166414AA2BBC90F7858DA0E.png)
+
+```xml
+<munit-tools:then-return>
+      <munit-tools:attributes value=”#[‘statusCode’: ‘404’]”/>
+      <munit-tools:error typeId="HTTP:NOT_FOUND"/>
+    </munit-tools:then-return>
+```
+
+Setting an attribute directly on the *mock-when* component as above will not help us either since this places it on the parent event’s attributes (seen as null in the image above) which is not the same set of attributes as the one for the *error* object. The same would apply for setting the payload. So how do we do this?
+
+### Solution
+
+We can always place the error handler logic within a sub-flow and test the sub-flow separately, but if we want to truly end-to-end test a particular flow then that will not suffice.
+
+So the idea behind our solution is to make an internal HTTP call that would act in place of the actual one. Thanks to the new ***munit-tools:then-call*** functionality we can instruct the *mock-when* component to execute another flow when we get to the HTTP request. This flow will be set up specifically for such a test and will essentially make an HTTP request that would be consumed by another flow with an HTTP Listener in our test environment. The latter flow will then throw a dummy exception and set the HTTP status code and response body accordingly – effectively mimicking the downstream API behaviour.
+
+You should end up with something like this:
+
+```xml
+<http:request-config name="Test_Error_Status_Codes_HTTP_Request_configuration" doc:name="HTTP Request configuration" responseTimeout="120000">
+    <http:request-connection host="localhost" port="8888"/>
+  </http:request-config>
+  <http:listener-config name="Test_Error_Status_Codes_HTTP_Listener_config" doc:name="HTTP Listener config">
+    <http:listener-connection host="localhost" port="8888"/>
+  </http:listener-config>
+
+  <flow name="test-mock-http-call-error-404">
+    <http:request method="GET" doc:name="GET /mock 404" config-ref="Test_Error_Status_Codes_HTTP_Request_configuration" path="/mock">
+      <http:body ><![CDATA[#[null]]]></http:body>
+      <http:query-params ><![CDATA[#[output application/java
+---
+{
+  "expectedStatusCode" : 404
+}]]]></http:query-params>
+    </http:request>
+  </flow>
+
+  <flow name="test-mock-http-call-error-responses">
+    <http:listener doc:name="Listener" config-ref="Test_Error_Status_Codes_HTTP_Listener_config" path="/mock">
+      <http:response statusCode="#[vars.httpStatus default 200]"/>
+      <http:error-response statusCode="#[vars.httpStatus default 500]"/>
+    </http:listener>
+    <raise-error doc:name="Raise error: TEST:EXCEPTION" type="TEST:EXCEPTION"/>
+    <error-handler>
+      <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" type="TEST:EXCEPTION">
+        <set-variable value="#[attributes.queryParams.expectedStatusCode]" doc:name="Set Variable: httpStatus" variableName="httpStatus"/>
+        <ee:transform doc:name="Test Exception payload">
+          <ee:message>
+            <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  code: 'test_exception',
+  description: 'Some error message here.'
+}]]></ee:set-payload>
+          </ee:message>
+        </ee:transform>
+      </on-error-continue>
+    </error-handler>
+  </flow>
+```
+
+Note that we are passing the expected status code as a query parameter between these two flows. The same can be applied for the error response body if you plan to re-use these flows with different parameters. Tuck this configuration away in a common file under *src/test/munit* and we can now proceed with the test which we will keep simple for the purpose of this example:
+
+```xml
+<munit:test name="test-mock-downstream-http-error-response-flow-test" description="Test">
+  <munit:enable-flow-sources>
+    <munit:enable-flow-source value="test-mock-http-call-error-responses"/>
+  </munit:enable-flow-sources>
+  <munit:behavior>
+    <munit-tools:mock-when doc:name="Mock HTTP Request" processor="http:request">
+      <munit-tools:with-attributes >
+        <munit-tools:with-attribute whereValue="Request" attributeName="doc:name"/>
+      </munit-tools:with-attributes>
+      <munit-tools:then-call flow="test-mock-http-call-error-404"/>
+    </munit-tools:mock-when>
+  </munit:behavior>
+  <munit:execution>
+    <flow-ref doc:name="test-mock-downstream-http-error-response-flow" name="test-mock-downstream-http-error-response-flow"/>
+  </munit:execution>
+  <munit:validation>
+    <munit-tools:assert-equals doc:name="Assert errorDescription" actual="#[payload.errorDescription]" expected="#['Some error message here.']"/>
+  </munit:validation>
+</munit:test>
+```
+
+That is basically it! Just make sure to add the second flow to the ***munit:enable-flow-sources*** (line 3 above) so that it can run within our test. Let us debug this again and observe the ***error*** object now:
+
+![](https://d3373sevsv1jc.cloudfront.net/uploads/communities_production/article_block/13346/1E2513E7E6DD4C649F2EDF85F38FC69A.png)
+
+As you can see *error.errorMessage* now contains more information, specifically the bottom two: *typedAttributes* and *typedValue*, which will contain the HTTP status code and response body respectively. This will allow the flow being tested to execute the error handler as required.
+
+### Conclusion
+
+That brings us to the end of this blog. Above we have described a workaround that allows one to mock an HTTP request with the desired status code and response body for error scenarios.
+
+Admittedly not the most straightforward way of doing things and it feels like we are hacking around the product, but it easily achieves what we are after which is not something that could be done directly via the *mock-when* component configuration, or at least not to my knowledge.
+
+A sample project showcasing the above can be found **[here](https://www.ricston.com/wp-content/uploads/2020/08/test-mock-downstream-http-error-response.zip)**, simply unzip and import into Studio 7. Thank you for reading!
+
+[![Jeffrey Cassar](https://d3373sevsv1jc.cloudfront.net/uploads/communities_production/user/avatar/185084/1187a784-ded2-4431-bbe0-82a98f31678e.jpg)](https://wearecommunity.io/users/jeffrey-cassar)
+
+[Jeffrey Cassar](https://wearecommunity.io/users/jeffrey-cassar)
+
+EPAM, Lead Software Engineer
+
+February 13, 2022
+
+1
+
+4752
+
+3120
+
+### Comments
+
+Recommended articles## [Mule 4 error handling – a review](https://wearecommunity.io/communities/integration/articles/1582#param_article_source_recommended=1618)## [Using security features in Mule 4](https://wearecommunity.io/communities/integration/articles/1712#param_article_source_recommended=1618)## [Parameterising Mocks, Spies and Assertions in MUnit tests](https://wearecommunity.io/communities/integration/articles/1720#param_article_source_recommended=1618)## [Testing flow behavior depending on application property values in MUnit 2](https://wearecommunity.io/communities/integration/articles/1580#param_article_source_recommended=1618)
+
+## Privacy Preference Center
+
+When you visit any website, it may store or retrieve information on your browser, mostly in the form of cookies. This information might be about you, your preferences or your device and is mostly used to make the site work as you expect it to. The information does not usually directly identify you, but it can give you a more personalized web experience. Because we respect your right to privacy, you can choose not to allow some types of cookies. Click on the different category headings to find out more and change our default settings. However, blocking some types of cookies may impact your experience of the site and the services we are able to offer.
+
+### Manage Consent Preferences
+
+These cookies are necessary for the website to function and cannot be switched off in our systems. They are usually only set in response to actions made by you which amount to a request for services, such as setting your privacy preferences, logging in or filling in forms. You can set your browser to block or alert you about these cookies, but some parts of the site will not then work. These cookies do not store any personally identifiable information.
+
+These cookies allow us to count visits and traffic sources so we can measure and improve the performance of our site. They help us to know which pages are the most and least popular and see how visitors move around the site. All information these cookies collect is aggregated and therefore anonymous. If you do not allow these cookies we will not know when you have visited our site, and will not be able to monitor its performance.
+
+These cookies enable the website to provide enhanced functionality and personalisation. They may be set by us or by third party providers whose services we have added to our pages. If you do not allow these cookies then some or all of these services may not function properly.
+
+These cookies may be set through our site by our advertising partners. They may be used by those companies to build a profile of your interests and show you relevant adverts on other sites. They do not store directly personal information, but are based on uniquely identifying your browser and internet device. If you do not allow these cookies, you will experience less targeted advertising.
+
+These cookies are set by a range of social media services that we have added to the site to enable you to share our content with your friends and networks. They are capable of tracking your browser across other sites and building up a profile of your interests. This may impact the content and messages you see on other websites you visit. If you do not allow these cookies you may not be able to use or see these sharing tools.
+
+null
 
 == Option D
 
@@ -159,3 +541,5 @@ Caused by: org.springframework.beans.factory.BeanCreationException: Error creati
 This is probably related to the MUnit Maven Plugin
 
 Revise the version, it's being know that version `3.4.0` it has this issue for example. You can confirm by executing only `test/munit/option-d/docs-mule-set-event-with-error-test-suite.xml` to validate the same usage of attribute `exception` to thrown an error.
+
+https://docs.mulesoft.com/munit/latest/test-mock-errors-cookbook#set-an-event-with-an-error
