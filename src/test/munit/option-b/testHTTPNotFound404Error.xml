@@ -22,6 +22,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
       port="8081" />
   </http:request-config>
 
+  <!-- Test Case 1: Expecting a Mule Error -->
   <munit:test
     name="testHTTPNotFound404Error-MuleError"
     description="Test"
@@ -30,6 +31,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
       <munit:enable-flow-source value="HTTPEndpoint" />
     </munit:enable-flow-sources>
     <munit:execution>
+      <!-- This request to a non-existent path will fail, triggering the expected error. -->
       <http:request
         method="GET"
         doc:name="Request"
@@ -38,6 +40,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
     </munit:execution>
   </munit:test>
 
+  <!-- Test Case 2: Validating the Status Code Directly -->
   <munit:test name="testHTTPNotFound404Error-HTTPStatusCode">
     <munit:enable-flow-sources>
       <munit:enable-flow-source value="HTTPEndpoint" />
@@ -48,6 +51,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
         doc:name="Request"
         config-ref="HTTP_Request_configuration"
         path="/NotExist">
+        <!-- This response validator tells the requester not to throw an error for a 404 response. -->
         <http:response-validator>
           <http:success-status-code-validator
             values="404" />
@@ -55,6 +59,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
       </http:request>
     </munit:execution>
     <munit:validation>
+      <!-- Since no error was thrown, we can now assert the status code from the response attributes. -->
       <munit-tools:assert-equals
         doc:name="Assert equals"
         actual="#[attributes.statusCode]"
