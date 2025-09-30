@@ -111,6 +111,7 @@ This process creates a highly realistic, fully-structured error object for your 
 
 ==== Diagrams
 .Sequence Diagram for Option A
+[%collapsible, open]
 [mermaid]
 ....
 sequenceDiagram
@@ -132,6 +133,7 @@ sequenceDiagram
 ....
 
 .Flowchart for Logic
+[%collapsible, open]
 [mermaid]
 ....
 graph TD
@@ -398,6 +400,7 @@ This method involves making a direct `http:request` from within the MUnit test t
 
 ==== Diagram
 .Sequence Diagram for Option B
+[%collapsible, open]
 [mermaid]
 ....
 sequenceDiagram
@@ -551,6 +554,7 @@ The `munit:set-event` or `mock-when` processor is used to create an error. Its `
 
 ==== Diagram
 .Sequence Diagram for Option D
+[%collapsible, open]
 [mermaid]
 ....
 sequenceDiagram
