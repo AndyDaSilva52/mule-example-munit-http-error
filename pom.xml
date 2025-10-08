@@ -6,6 +6,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>mule-application</packaging>
     <name>mule-example-munit-http-error</name>
+    <description>MuleSoft Example MUnit HTTP Error</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -48,34 +49,34 @@
                     </coverage>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
-                <configuration>
-                    <excludes>
-                        <exclude>${project.build.outputDirectory}/option-b/munitusage.xml</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
+<!--             <plugin> -->
+<!--                 <groupId>org.apache.maven.plugins</groupId> -->
+<!--                 <artifactId>maven-jar-plugin</artifactId> -->
+<!--                 <version>3.4.2</version> -->
+<!--                 <configuration> -->
+<!--                     <excludes> -->
+<!--                         <exclude>${project.build.outputDirectory}/option-b/munitusage.xml</exclude> -->
+<!--                     </excludes> -->
+<!--                 </configuration> -->
+<!--             </plugin> -->
             <!-- INFO: This plugin is not intended to be used like this, but it works. You may need to find another solution and test if it works. -->
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <delete file="${project.build.outputDirectory}/option-b/munitusage.xml"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--             <plugin> -->
+<!--                 <artifactId>maven-antrun-plugin</artifactId> -->
+<!--                 <version>3.1.0</version> -->
+<!--                 <executions> -->
+<!--                     <execution> -->
+<!--                         <phase>process-resources</phase> -->
+<!--                         <goals> -->
+<!--                             <goal>run</goal> -->
+<!--                         </goals> -->
+<!--                         <configuration> -->
+<!--                             <target> -->
+<!--                                 <delete file="${project.build.outputDirectory}/option-b/munitusage.xml"/> -->
+<!--                             </target> -->
+<!--                         </configuration> -->
+<!--                     </execution> -->
+<!--                 </executions> -->
+<!--             </plugin> -->
         </plugins>
     </build>
     <dependencies>
@@ -89,6 +90,24 @@
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-sockets-connector</artifactId>
             <version>1.2.6</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-validation-module</artifactId>
+            <version>2.0.7</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.connectors</groupId>
+            <artifactId>mule-objectstore-connector</artifactId>
+            <version>1.2.3</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-tracing-module</artifactId>
+            <version>1.2.0</version>
             <classifier>mule-plugin</classifier>
         </dependency>
         <dependency>
@@ -110,24 +129,6 @@
             <artifactId>assertions</artifactId>
             <version>1.2.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-validation-module</artifactId>
-            <version>2.0.7</version>
-            <classifier>mule-plugin</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.connectors</groupId>
-            <artifactId>mule-objectstore-connector</artifactId>
-            <version>1.2.3</version>
-            <classifier>mule-plugin</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-tracing-module</artifactId>
-            <version>1.2.0</version>
-            <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
     <repositories>
