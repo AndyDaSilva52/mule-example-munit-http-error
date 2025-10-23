@@ -139,7 +139,8 @@ sequenceDiagram
     Test->>Flow: Verify behavior in error handler
 ....
 
-image::exchange-docs/assets/option-a-mermaid-sequence-diagram.svg[Embedded,768,opts=inline]
+// image::exchange-docs/assets/option-a-mermaid-sequence-diagram.svg[Embedded,768,opts=inline]
+image::exchange-docs/assets/option-a-mermaid-sequence-diagram.png[id=option-a-mermaid-sequence-diagram,align="center",caption="Sequence Diagram for Option A"]
 
 
 ==== Code Analysis
