@@ -38,7 +38,7 @@ The challenge in testing these paths lies in accurately replicating the complex 
 }
 ----
 
-This guide provides a detailed analysis of approaches for mocking and testing HTTP error responses within MUnit 2.
+This guide provides a detailed analysis of approaches for mocking and testing HTTP error responses within MUnit.
 
 It serves as a reference, offering deep insights into the mechanics, advantages, and disadvantages of each method. The goal is to equip you with the knowledge to choose and implement the most effective and maintainable testing strategy for your projects.
 
